@@ -3,7 +3,6 @@ from time import sleep
 import credentials
 
 
-#
 class Camera:
     def __init__(self):
         self.my_cam = ONVIFCamera(
