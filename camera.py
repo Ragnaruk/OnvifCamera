@@ -1,23 +1,28 @@
 from onvif import ONVIFCamera
 from time import sleep
-import credentials
 
 
 class Camera:
-    def __init__(self):
+    def __init__(self, ip, port, login, password, debug=False):
+        # Connecting to the camera
         self.my_cam = ONVIFCamera(
-            credentials.ip,
-            credentials.port,
-            credentials.login,
-            credentials.password
+            ip,
+            port,
+            login,
+            password
         )
 
-        print('Device information: ' + str(self.my_cam.devicemgmt.GetDeviceInformation()))
-        print('--------------------------------------------------------------------------------')
+        # Getting device information
+        if debug:
+            print('Device information: ' + str(self.my_cam.devicemgmt.GetDeviceInformation()))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         # Getting hostname
-        print('Device hostname: ' + str(self.my_cam.devicemgmt.GetHostname().Name))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print('Device hostname: ' + str(self.my_cam.devicemgmt.GetHostname().Name))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         # Getting system date and time
         dt = self.my_cam.devicemgmt.GetSystemDateAndTime()
@@ -25,10 +30,14 @@ class Camera:
         year = dt.UTCDateTime.Date.Year
         hour = dt.UTCDateTime.Time.Hour
 
-        print('Timezone: ' + str(tz))
-        print('Year: ' + str(year))
-        print('Hour: ' + str(hour))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print('Timezone: ' + str(tz))
+        if debug:
+            print('Year: ' + str(year))
+        if debug:
+            print('Hour: ' + str(hour))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         # Creating media service
         self.media_service = self.my_cam.create_media_service()
@@ -41,14 +50,18 @@ class Camera:
         self.profiles = self.media_service.GetProfiles()
         self.media_profile = self.profiles[0]
 
-        print("Profiles: " + str(self.profiles))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print("Profiles: " + str(self.profiles))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         # Getting token
         token = self.media_profile.token
 
-        print("Token: " + str(token))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print("Token: " + str(token))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         # Creating PTZ service
         self.ptz = self.my_cam.create_ptz_service()
@@ -57,60 +70,111 @@ class Camera:
         request = self.ptz.create_type('GetServiceCapabilities')
         service_capabilities = self.ptz.GetServiceCapabilities(request)
 
-        print("Service capabilities: " + str(service_capabilities))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print("Service capabilities: " + str(service_capabilities))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         # Getting PTZ status
         status = self.ptz.GetStatus({'ProfileToken': token})
 
-        print("PTZ status: " + str(status))
-        print('--------------------------------------------------------------------------------')
-        print('Pan position:' + str(status.Position.PanTilt.x))
-        print('Tilt position:' + str(status.Position.PanTilt.y))
-        print('Zoom position:' + str(status.Position.Zoom.x))
-        print('Pan/Tilt Moving?:' + str(status.MoveStatus.PanTilt))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print("PTZ status: " + str(status))
+        if debug:
+            print('--------------------------------------------------------------------------------')
+        if debug:
+            print('Pan position:' + str(status.Position.PanTilt.x))
+        if debug:
+            print('Tilt position:' + str(status.Position.PanTilt.y))
+        if debug:
+            print('Zoom position:' + str(status.Position.Zoom.x))
+        if debug:
+            try:
+                print('Pan/Tilt Moving?:' + str(status.MoveStatus.PanTilt))
+            except:
+                pass
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         # Getting PTZ configuration options for getting option ranges
         request = self.ptz.create_type('GetConfigurationOptions')
         request.ConfigurationToken = self.media_profile.PTZConfiguration.token
         ptz_configuration_options = self.ptz.GetConfigurationOptions(request)
 
-        print('PTZ configuration options: ' + str(ptz_configuration_options))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print('PTZ configuration options: ' + str(ptz_configuration_options))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         # Getting move options
         self.request_continuous_move = self.ptz.create_type('ContinuousMove')
         self.request_continuous_move.ProfileToken = self.media_profile.token
 
-        print('Continuous move options: ' + str(self.request_continuous_move))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print('Continuous move options: ' + str(self.request_continuous_move))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         self.request_absolute_move = self.ptz.create_type('AbsoluteMove')
         self.request_absolute_move.ProfileToken = self.media_profile.token
 
-        print('Absolute move options: ' + str(self.request_absolute_move))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print('Absolute move options: ' + str(self.request_absolute_move))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         self.request_relative_move = self.ptz.create_type('RelativeMove')
         self.request_relative_move.ProfileToken = self.media_profile.token
 
-        print('Relative move options: ' + str(self.request_relative_move))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print('Relative move options: ' + str(self.request_relative_move))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         self.request_stop = self.ptz.create_type('Stop')
         self.request_stop.ProfileToken = self.media_profile.token
 
-        print('Stop options: ' + str(self.request_stop))
-        print('--------------------------------------------------------------------------------')
+        if debug:
+            print('Stop options: ' + str(self.request_stop))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
-        # self.request_set_preset = self.ptz.create_type('SetPreset')
-        # self.request_set_preset.ProfileToken = self.profiles[0].token
-        #
-        # self.request_goto_preset = self.ptz.create_type('GoToPreset')
-        # self.request_goto_preset.ProfileToken = self.profiles[0].token
+        # Creating imaging service
+        self.imaging = self.my_cam.create_imaging_service()
+
+        # Getting available imaging services
+        request = self.imaging.create_type('GetServiceCapabilities')
+        service_capabilities = self.ptz.GetServiceCapabilities(request)
+
+        if debug:
+            print("Service capabilities: " + str(service_capabilities))
+        if debug:
+            print('--------------------------------------------------------------------------------')
+
+        # Getting imaging status
+        status = self.imaging.GetStatus({'VideoSourceToken': self.profiles[0].VideoSourceConfiguration.SourceToken})
+
+        if debug:
+            print("Imaging status: " + str(status))
+        if debug:
+            print('--------------------------------------------------------------------------------')
+
+        self.request_absolute_focus = self.imaging.create_type('Move')
+        self.request_absolute_focus.VideoSourceToken = self.profiles[0].VideoSourceConfiguration.SourceToken
+
+        if debug:
+            print('Focus move options: ' + str(self.request_absolute_focus))
+        if debug:
+            print('--------------------------------------------------------------------------------')
 
         self.stop()
+
+    def get_position(self):
+        # Getting PTZ status
+        status = self.ptz.GetStatus({'ProfileToken': self.media_profile.token})
+
+        print("PTZ position: " + str(status.Position))
+        print('--------------------------------------------------------------------------------')
 
     # Stop any movement
     def stop(self):
@@ -122,9 +186,9 @@ class Camera:
         # print('Stopping camera')
 
     # Continuous move functions
-    def perform_move(self, timeout):
+    def perform_continuous_move(self, timeout):
         # Start continuous move
-        ret = self.ptz.ContinuousMove(self.request_continuous_move)
+        self.ptz.ContinuousMove(self.request_continuous_move)
 
         # Wait a certain time
         sleep(timeout)
@@ -144,7 +208,7 @@ class Camera:
 
         self.request_continuous_move.Velocity = status.Position
 
-        self.perform_move(timeout)
+        self.perform_continuous_move(timeout)
 
     def move_pan(self, velocity, timeout):
         print('Panning with velocity: \'' + str(velocity) + '\' and timeout: \'' + str(timeout) + '\'')
@@ -155,7 +219,19 @@ class Camera:
 
         self.request_continuous_move.Velocity = status.Position
 
-        self.perform_move(timeout)
+        self.perform_continuous_move(timeout)
+
+    def move_diagonal(self, velocity_one, velocity_two, timeout):
+        print('Moving diagonally with velocity: \'' + str(velocity_one) + ':' + str(velocity_two) +
+              '\' and timeout: \'' + str(timeout) + '\'')
+
+        status = self.ptz.GetStatus({'ProfileToken': self.media_profile.token})
+        status.Position.PanTilt.x = velocity_one
+        status.Position.PanTilt.y = velocity_two
+
+        self.request_continuous_move.Velocity = status.Position
+
+        self.perform_continuous_move(timeout)
 
     def move_zoom(self, velocity, timeout):
         print('Zooming with velocity: \'' + str(velocity) + '\' and timeout: \'' + str(timeout) + '\'')
@@ -165,4 +241,38 @@ class Camera:
 
         self.request_continuous_move.Velocity = status.Position
 
-        self.perform_move(timeout)
+        self.perform_continuous_move(timeout)
+
+    def move_custom(self, velocity_one, velocity_two, velocity_three, timeout_one, timeout_two, timeout_three):
+        self.move_tilt(velocity_one, timeout_one)
+        self.move_pan(velocity_two, timeout_two)
+        self.move_zoom(velocity_three, timeout_three)
+
+    # Absolute move functions
+    def perform_absolute_move(self):
+        # Start absolute move
+        self.ptz.AbsoluteMove(self.request_absolute_move)
+
+        # print('Absolute move completed')
+        sleep(4)
+
+    def move_absolute(self, x, y, z):
+        print('Moving to: \'' + str(x) + ':' + str(y) + ':' + str(z))
+
+        status = self.ptz.GetStatus({'ProfileToken': self.media_profile.token})
+        status.Position.PanTilt.x = x
+        status.Position.PanTilt.y = y
+        status.Position.Zoom.x = z
+
+        self.request_absolute_move.Position = status.Position
+
+        self.perform_absolute_move()
+
+    def change_focus(self, x):
+        print('Changing focus: ' + str(x))
+
+        # status = self.imaging.GetStatus({'VideoSourceToken': self.profiles[0].VideoSourceConfiguration.SourceToken})
+        # status.FocusStatus20.Position = x
+
+        self.request_absolute_focus.Focus = x
+        self.imaging.Move(self.request_absolute_focus)
