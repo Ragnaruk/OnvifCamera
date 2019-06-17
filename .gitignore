@@ -1,2 +1,8 @@
-.idea
-.credentials.py
+# IDE
+.idea/
+
+# Python
+venv/
+
+# Credentials for cameras
+./src/credentials.py
