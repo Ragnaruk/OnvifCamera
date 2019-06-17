@@ -1,6 +1,7 @@
-from camera import Camera
-import credentials
+from src.camera import Camera
 from time import sleep
+
+import credentials
 
 # --------------------------------------------------
 
